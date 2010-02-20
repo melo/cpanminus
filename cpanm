@@ -10,7 +10,7 @@ use Getopt::Long;
 
 our $VERSION = "0.06";
 
-my($Base, %seen, $notest, $force, $sudo, $quote, $make);
+my($Base, %seen, $notest, $force, $local, $sudo, $quote, $make);
 
 main();
 
@@ -46,6 +46,7 @@ sub parse_options {
         'n|notest' => \$notest,
         'sudo'     => \$sudo,
         'h|help'   => \$help,
+        'l|local'  => \$local,
         'i|install' => sub {},
         'v|version' => \$version,
     );
@@ -61,9 +62,10 @@ sub version {
 
 sub help {
     print <<USAGE;
-Usage: cpanm [--force] [--notest] [--sudo] Module
+Usage: cpanm [--force] [--local] [--notest] [--sudo] Module
 
   -f,--force     force install
+  -l,--local     install modules inside directory D
   -n,--notest    Do not run unit tests
   -s,--sudo      sudo to run install commands
 
@@ -260,6 +262,8 @@ sub install_deps {
 sub build_stuff {
     my($module, $dir) = @_;
 
+    my $guard = setup_local_install();
+    
     if (-e 'META.yml') {
         diag "Checking configure dependencies from META.yml ...\n";
         my $meta = parse_meta('META.yml');
@@ -322,6 +326,13 @@ sub build_stuff {
     } else {
         diag "Sorry, I don't know how to build $dir\n";
         return;
+    }
+}
+
+sub setup_local_install {
+    return unless $local;
+    if (!-d $local) {
+        
     }
 }
 
